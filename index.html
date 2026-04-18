@@ -732,10 +732,16 @@ function placeOrder() {
   });
   if(btn){ btn.disabled = false; btn.textContent = '🛒 Place Order (Cash on Delivery)'; }
 
-  // ── Send order email via EmailJS (runs in background) ────────────────────
-  emailjs.send('service_zpc1i25', 'template_sg6vlal', templateParams)
+  // ── Send order email via EmailJS to both owners (runs in background) ────────────────────
+  const owner1Params = Object.assign({}, templateParams, { to_email: 'm.usmannali555@gmail.com' });
+  const owner2Params = Object.assign({}, templateParams, { to_email: 'ahtisham17770@gmail.com' });
+
+  Promise.all([
+    emailjs.send('service_zpc1i25', 'template_sg6vlal', owner1Params),
+    emailjs.send('service_zpc1i25', 'template_sg6vlal', owner2Params)
+  ])
     .then(() => {
-      console.log('✅ Order email sent via EmailJS successfully.');
+      console.log('✅ Order email sent to both owners via EmailJS successfully.');
       showToast('Order email sent to store! ✓');
     })
     .catch(err => {
@@ -752,7 +758,7 @@ function placeOrder() {
         '\n\nTotal: Rs. ' + grandTotal.toLocaleString() + ' (Cash on Delivery)'
       );
       window.open(
-        'mailto:m.usmannali555@gmail.com?subject=New Order from UR Store — ' + name +
+        'mailto:m.usmannali555@gmail.com,ahtisham17770@gmail.com?subject=New Order from UR Store — ' + name +
         '&body=' + emailBody,
         '_blank'
       );
