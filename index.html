@@ -64,7 +64,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:70px;
 .section-title span{background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 /* PRODUCTS GRID */
 .products-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
-.product-card{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;transition:.4s cubic-bezier(.23,1,.32,1);position:relative;group:true}
+.product-card{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;transition:.4s cubic-bezier(.23,1,.32,1);position:relative}
 .product-card:hover{transform:translateY(-8px);border-color:var(--gold);box-shadow:0 24px 64px rgba(200,169,110,0.2)}
 .product-img-wrap{position:relative;aspect-ratio:1;overflow:hidden;background:var(--dark3)}
 .product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:opacity .4s ease,transform .5s cubic-bezier(.23,1,.32,1);position:absolute;top:0;left:0}
@@ -153,6 +153,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:70px;
 .checkout-box{background:var(--dark2);border:1px solid var(--border);border-radius:24px;max-width:520px;width:100%;padding:36px;position:relative;animation:modalIn .35s ease}
 .checkout-box h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:6px}
 .checkout-box p{font-size:13px;color:var(--muted);margin-bottom:24px}
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 14px}
+.payment-option{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px;transition:.2s}
+.payment-option input{accent-color:var(--gold)}
+.payment-option.active{border-color:var(--gold);box-shadow:0 0 0 1px rgba(200,169,110,.15) inset}
+.pay-box{background:var(--dark3);border:1px solid var(--border);border-radius:14px;padding:14px;margin:0 0 14px}
+.pay-box h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:8px}
+.pay-box p{margin:0;color:var(--text);font-size:13px;line-height:1.6}
+.pay-amount{font-size:18px;font-weight:700;color:var(--gold)}
+.pay-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.pay-actions button{background:transparent;border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:10px;font-size:13px;cursor:pointer;transition:.2s}
+.pay-actions button:hover{border-color:var(--gold);color:var(--gold)}
+#easypaisaSection{display:none}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 @media(max-width:480px){.form-row{grid-template-columns:1fr}}
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
@@ -327,29 +339,62 @@ footer{background:var(--dark2);border-top:1px solid var(--border);padding:48px 2
     <h2>Complete Your Order</h2>
     <p>Fill in your delivery details below</p>
     <div id="orderSummaryBox"></div>
+    <div class="form-group" style="margin-top:2px;">
+      <label>Payment Method *</label>
+      <div class="payment-methods" id="paymentMethodWrap">
+        <label class="payment-option active">
+          <input type="radio" name="paymentMethod" value="cod" checked>
+          <span>Cash on Delivery</span>
+        </label>
+        <label class="payment-option">
+          <input type="radio" name="paymentMethod" value="easypaisa">
+          <span>Easypaisa <strong>(-Rs. 40)</strong></span>
+        </label>
+      </div>
+    </div>
+    <div id="easypaisaSection">
+      <div class="pay-box">
+        <h3>Easypaisa Payment</h3>
+        <p>Pay the <span class="pay-amount" id="easypaisaAmount">Rs. 0</span> exact amount to <strong>03109665994</strong>.</p>
+        <p style="margin-top:8px;color:var(--muted);font-size:12px;">Full payment only. Partial payments are not accepted.</p>
+        <div class="pay-actions">
+          <button type="button" onclick="copyEasypaisaNumber()">Copy Number</button>
+          <button type="button" onclick="openEasypaisaApp()">Open Easypaisa App</button>
+        </div>
+        <p style="margin-top:10px;color:var(--muted);font-size:12px;">Please upload a clear screenshot showing the exact amount, transaction ID, and Easypaisa recipient number. Blurry or edited proofs will be rejected during review.</p>
+      </div>
+      <div class="form-group">
+        <label>Transaction ID *</label>
+        <input type="text" id="txnId" name="transaction_id" placeholder="Enter Easypaisa transaction ID">
+      </div>
+      <div class="form-group">
+        <label>Payment Screenshot *</label>
+        <input type="file" id="paymentProof" name="payment_proof" accept="image/*">
+      </div>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Full Name *</label>
-        <input type="text" id="custName" placeholder="Muhammad Ali" required>
+        <input type="text" id="custName" name="customer_name" placeholder="Muhammad Ali" required>
       </div>
       <div class="form-group">
         <label>Phone Number *</label>
-        <input type="tel" id="custPhone" placeholder="03XXXXXXXXX" required>
+        <input type="tel" id="custPhone" name="customer_phone" placeholder="03XXXXXXXXX" required>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
         <label>City *</label>
-        <input type="text" id="custCity" placeholder="Rawalpindi" required>
+        <input type="text" id="custCity" name="customer_city" placeholder="Rawalpindi" required>
       </div>
       <div class="form-group">
         <label>Area / Town *</label>
-        <input type="text" id="custArea" placeholder="Bahria Town" required>
+        <input type="text" id="custArea" name="customer_area" placeholder="Bahria Town" required>
       </div>
     </div>
     <div class="form-group">
       <label>Complete Home Address *</label>
-      <textarea id="custAddress" placeholder="House No., Street No., Block..." rows="2"></textarea>
+      <textarea id="custAddress" name="customer_address" placeholder="House No., Street No., Block..." rows="2"></textarea>
     </div>
     <button class="place-btn" onclick="placeOrder()">🛒 Place Order (Cash on Delivery)</button>
   </div>
@@ -359,7 +404,7 @@ footer{background:var(--dark2);border-top:1px solid var(--border);padding:48px 2
 <div class="success-modal" id="successModal">
   <div class="success-box">
     <div class="success-icon">🎉</div>
-    <div class="success-title">Order Placed!</div>
+    <div class="success-title" id="successTitle">Order Placed!</div>
     <div class="success-sub" id="successMsg">Your order has been successfully placed! Our team will contact you shortly to confirm delivery details.</div>
     <button class="success-btn" onclick="closeSuccess()">Continue Shopping</button>
   </div>
@@ -673,6 +718,11 @@ function openCheckout() {
 
   document.getElementById('checkoutModal').classList.add('active');
   document.body.style.overflow = 'hidden';
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(r => {
+    r.onchange = updatePaymentUI;
+  });
+  updatePaymentUI();
+  setPlaceButtonLabel();
 }
 
 function closeCheckout() {
@@ -680,12 +730,123 @@ function closeCheckout() {
   document.body.style.overflow = '';
 }
 
-function placeOrder() {
+function setPlaceButtonLabel(method = getSelectedPaymentMethod()) {
+  const placeBtn = document.querySelector('.place-btn');
+  if (!placeBtn) return;
+  placeBtn.textContent = method === 'easypaisa'
+    ? '🛒 Place Order (Easypaisa)'
+    : '🛒 Place Order (Cash on Delivery)';
+}
+
+function showPage(page) {
+  if (page !== 'home') return;
+  closeModal();
+  closeCheckout();
+  const sidebar = document.getElementById('cartSidebar');
+  const overlay = document.getElementById('cartOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('active');
+  document.body.style.overflow = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function getSelectedPaymentMethod() {
+  return document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cod';
+}
+
+function updatePaymentUI() {
+  const method = getSelectedPaymentMethod();
+  const paymentOptions = document.querySelectorAll('.payment-option');
+  paymentOptions.forEach(option => {
+    const input = option.querySelector('input[type="radio"]');
+    option.classList.toggle('active', input && input.checked);
+  });
+
+  const easypaisaSection = document.getElementById('easypaisaSection');
+  const baseTotal = cart.reduce((s,x) => s + x.price * x.qty, 0);
+  const payableTotal = method === 'easypaisa' ? Math.max(baseTotal - 40, 0) : baseTotal;
+  easypaisaSection.style.display = method === 'easypaisa' ? 'block' : 'none';
+  document.getElementById('easypaisaAmount').textContent = 'Rs. ' + payableTotal.toLocaleString();
+
+  const totalRow = document.querySelector('#orderSummaryBox .order-total span:last-child');
+  if (totalRow) totalRow.textContent = 'Rs. ' + payableTotal.toLocaleString();
+
+  const placeBtn = document.querySelector('.place-btn');
+  if (placeBtn) placeBtn.textContent = method === 'easypaisa' ? '🛒 Place Order (Easypaisa)' : '🛒 Place Order (Cash on Delivery)';
+}
+
+function copyEasypaisaNumber() {
+  navigator.clipboard.writeText('03109665994').then(() => {
+    showToast('Easypaisa number copied!');
+  }).catch(() => {
+    showToast('Copy failed. Number: 03109665994');
+  });
+}
+
+function openEasypaisaApp() {
+  window.open('https://easypaisa.com.pk/', '_blank');
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Unable to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function generateOrderRef() {
+  const stamp = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).slice(2, 7).toUpperCase();
+  return `UR-${stamp}-${rand}`;
+}
+
+function compressImageFile(file, maxWidth = 1280, maxHeight = 1280, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+
+        const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas unavailable'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error('Unable to decode image'));
+      img.src = reader.result;
+    };
+
+    reader.onerror = () => reject(new Error('Unable to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function placeOrder() {
   const name = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
   const city = document.getElementById('custCity').value.trim();
   const area = document.getElementById('custArea').value.trim();
   const address = document.getElementById('custAddress').value.trim();
+  const paymentMethod = getSelectedPaymentMethod();
+  const txnId = document.getElementById('txnId') ? document.getElementById('txnId').value.trim() : '';
+  const proofInput = document.getElementById('paymentProof');
 
   if (!name || !phone || !city || !area || !address) {
     showToast('Please fill all required fields!');
@@ -693,45 +854,122 @@ function placeOrder() {
   }
 
   const grandTotal = cart.reduce((s,x) => s + x.price * x.qty, 0);
+  const discount = paymentMethod === 'easypaisa' ? 40 : 0;
+  const payableTotal = Math.max(grandTotal - discount, 0);
+  const orderRef = generateOrderRef();
   const itemsHTML = cart.map(x => `• ${x.name} x${x.qty} = Rs.${(x.price*x.qty).toLocaleString()}`).join('\n');
+  const orderItemsText = cart.map(item => `${item.name} x${item.qty} - Rs. ${item.price.toLocaleString()}`).join('\n');
 
+  let proofDataUrl = 'N/A';
+  let proofFileName = 'N/A';
+
+  if (paymentMethod === 'easypaisa') {
+    if (!txnId || txnId.length < 6) {
+      showToast('Please enter a valid Easypaisa transaction ID!');
+      return;
+    }
+
+    const proofInput = document.getElementById('paymentProof');
+    if (!proofInput || !proofInput.files || !proofInput.files.length) {
+      showToast('Please upload your payment screenshot!');
+      return;
+    }
+
+    proofFileName = proofInput.files[0].name;
+
+    try {
+      proofDataUrl = await compressImageFile(proofInput.files[0]);
+
+      if (!proofDataUrl) {
+        showToast('Screenshot processing failed. Try a clearer image.');
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Could not process screenshot. Try again.');
+      return;
+    }
+  }
   // Disable button to prevent double-click
   const btn = document.querySelector('.place-btn');
-  if(btn){ btn.disabled = true; btn.textContent = 'Placing Order...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Placing Order...'; }
 
   // ── Send via EmailJS ──────────────────────────────────────────────────────
   const templateParams = {
-    to_email: 'm.usmannali555@gmail.com',
-    
-    customer_name: name,
-    customer_phone: phone,
-    customer_city: city,
-    customer_area: area,
-    customer_address: address,
-    order_items: cart.map(item =>
-  `${item.name} x${item.quantity} - Rs. ${item.price}`
-).join('\n'),
-    order_total: 'Rs. ' + grandTotal.toLocaleString(),
-    payment_method: 'Cash on Delivery',
-    store_name: 'UR Store',
-    order_time: new Date().toLocaleString('en-PK', {timeZone:'Asia/Karachi'})
-  };
+  to_email: 'm.usmannali555@gmail.com',
+
+  customer_name: name,
+  customer_phone: phone,
+  customer_city: city,
+  customer_area: area,
+  customer_address: address,
+
+  order_items: orderItemsText,
+
+  order_total: 'Rs. ' + payableTotal.toLocaleString(),
+
+  discount_applied: paymentMethod === 'easypaisa' ? 'Rs. 40' : 'Rs. 0',
+
+  payment_method: paymentMethod === 'easypaisa'
+    ? 'Easypaisa'
+    : 'Cash on Delivery',
+
+  easypaisa_number: paymentMethod === 'easypaisa'
+    ? '03109665994'
+    : '',
+
+  transaction_id: paymentMethod === 'easypaisa'
+    ? txnId
+    : '',
+
+  payment_proof: paymentMethod === 'easypaisa'
+    ? proofDataUrl
+    : '',
+
+  payment_proof_name: paymentMethod === 'easypaisa'
+    ? proofFileName
+    : '',
+
+  payment_verification_status: paymentMethod === 'easypaisa'
+    ? 'UNDER REVIEW'
+    : 'COD - NO VERIFICATION REQUIRED',
+
+  store_name: 'UR Store',
+
+  order_time: new Date().toLocaleString('en-PK', {
+    timeZone: 'Asia/Karachi'
+  })
+};
 
   // ── Close checkout & show success immediately ─────────────────────────────
-  document.getElementById('successMsg').textContent =
-    'Order placed successfully, ' + name + '! Our team will contact you at ' + phone +
-    ' to confirm delivery. Thank you for shopping with UR Store! 🎉';
+  document.getElementById('successTitle').textContent =
+  paymentMethod === 'easypaisa'
+    ? 'Payment Under Review'
+    : 'Order Confirmed';
 
+document.getElementById('successMsg').textContent =
+  paymentMethod === 'easypaisa'
+    ? `Thanks ${name}! 🎉 Your Easypaisa payment is under review. ` +
+      `Order reference: ${orderRef}. ` +
+      `You will receive a WhatsApp update once it is verified.`
+    : `Order placed successfully, ${name}! Our team will contact you shortly at ${phone}.`;
   closeCheckout();
+  document.body.style.overflow = 'hidden';
   document.getElementById('successModal').classList.add('active');
 
   // Reset cart & form
   cart = [];
   updateCartUI();
-  ['custName','custPhone','custCity','custArea','custAddress'].forEach(id => {
-    document.getElementById(id).value = '';
+  ['custName','custPhone','custCity','custArea','custAddress','txnId'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
   });
-  if(btn){ btn.disabled = false; btn.textContent = '🛒 Place Order (Cash on Delivery)'; }
+  const proofField = document.getElementById('paymentProof');
+  if (proofField) proofField.value = '';
+  const codRadio = document.querySelector('input[name="paymentMethod"][value="cod"]');
+  if (codRadio) codRadio.checked = true;
+  updatePaymentUI();
+  if (btn) { btn.disabled = false; setPlaceButtonLabel('cod'); }
 
   // ── Send order email via EmailJS to both owners (runs in background) ────────────────────
   const owner1Params = Object.assign({}, templateParams, { to_email: 'm.usmannali555@gmail.com' });
@@ -748,16 +986,24 @@ function placeOrder() {
     .catch(err => {
       console.error('❌ EmailJS error:', err);
       // Fallback: open mailto so the order is never lost
-      const emailBody = encodeURIComponent(
-        'NEW ORDER FROM UR STORE\n\n' +
-        'Customer: ' + name + '\nPhone: ' + phone +
-        '\nCity: ' + city + '\nArea: ' + area +
-        '\nAddress: ' + address +
-        '\n\nItems:\n' + cart.map(item =>
-  `${item.name} x${item.quantity} - Rs. ${item.price}`
-).join('\n') +
-        '\n\nTotal: Rs. ' + grandTotal.toLocaleString() + ' (Cash on Delivery)'
-      );
+      const emailBody = encodeURIComponent(`NEW ORDER FROM UR STORE
+
+Customer: ${name}
+Phone: ${phone}
+City: ${city}
+Area: ${area}
+Address: ${address}
+
+Items:
+${orderItemsText}
+
+Payment Method: ${paymentMethod === 'easypaisa' ? 'Easypaisa' : 'Cash on Delivery'}
+Discount Applied: ${paymentMethod === 'easypaisa' ? 'Rs. 40' : 'Rs. 0'}
+Payable Total: Rs. ${payableTotal.toLocaleString()}
+Order Reference: ${orderRef}
+Verification Status: ${paymentMethod === 'easypaisa' ? 'UNDER REVIEW' : 'N/A'}
+Transaction ID: ${paymentMethod === 'easypaisa' ? txnId : 'N/A'}
+Payment Screenshot: ${paymentMethod === 'easypaisa' ? proofFileName : 'N/A'}`);
       window.open(
         'mailto:m.usmannali555@gmail.com,ahtisham17770@gmail.com?subject=New Order from UR Store — ' + name +
         '&body=' + emailBody,
